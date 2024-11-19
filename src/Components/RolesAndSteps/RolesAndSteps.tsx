@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './RolesAndSteps.css';
+import Steps from '../Steps/Steps';
+import Contributor from '../Contributor/Contributor';
 
 function RoleSelection() {
   const [selectedRole, setSelectedRole] = useState(null);
@@ -21,7 +23,7 @@ function RoleSelection() {
                 <h3>Contributors</h3>
                 <p>Upload labeled data, earn tokens, and track data usage for transparency and impact.</p>
               </div>
-              <a href="#" className="select-role" style={{margin: '20px 0px'}}>Get Started</a>
+              <a href="/contributor" className="select-role" style={{margin: '20px 0px'}}>Get Started</a>
             </label>
             <input
               type="radio"
@@ -53,9 +55,7 @@ function RoleSelection() {
           </div>
           
         </div>
-        <div className='roles'>
-          Hi
-        </div>
+        <Steps/>
       </div>
   
     );
@@ -105,9 +105,7 @@ function RoleSelection() {
           </div>
           
         </div>
-        <div className='roles'>
-          Hi
-        </div>
+        <Steps/>
       </div>
   
     );

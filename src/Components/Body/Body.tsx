@@ -11,7 +11,7 @@ const HeroSection: React.FC = () => {
         <p className="hero-subtitle">
           Defining AI training in a collaborative data marketplace
         </p>
-        <button className="cta-button">Learn More</button>
+        <a className="cta-button" href= "/learnMore">Learn More</a>
       </div>
     </section>
   );
