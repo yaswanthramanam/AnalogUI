@@ -1,125 +1,91 @@
-import React, { useState, useEffect } from "react";
-import { ArweaveWalletKit, ConnectButton } from "arweave-wallet-kit";
-import Arweave from "arweave"; // Import Arweave library
-import Header from '../Header/Header';
-import Body from '../Body/Body';
-import Footer from '../Footer/Footer';
+import React, { useState } from 'react';
+import Arweave from 'arweave';
 
-interface Wallet {
-  address: string;
-}
+const App = () => {
+    const [walletData, setWalletData] = useState<any>(null);
+    const [message, setMessage] = useState<string>('');
 
-const ArweaveUpload = () => {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [wallet, setWallet] = useState<Wallet | null>(null); // Define wallet type
-
-  // Provide apiConfig for Arweave initialization
-  const arweave = Arweave.init({
-    host: "arweave.net", // or your custom Arweave gateway
-    port: 443,
-    protocol: "https",
-  });
-
-  useEffect(() => {
-    if (wallet && wallet.address) {
-      setWalletAddress(wallet.address);
-    }
-  }, [wallet]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const uploadToArweave = async () => {
-    if (!file) {
-      alert("Please select a file to upload.");
-      return;
-    }
-
-    try {
-      // Convert the file to Uint8Array
-      const fileData = await fileToUint8Array(file);
-
-      const transaction = await arweave.createTransaction({ data: fileData });
-      await arweave.transactions.sign(transaction); // Sign the transaction with the wallet
-      await arweave.transactions.post(transaction); // Post the transaction to Arweave
-
-      console.log("Transaction successful! Transaction ID: ", transaction.id);
-
-      // Send the transaction ID to the backend
-      sendTransactionDataToBackend(transaction.id);
-    } catch (error) {
-      console.error("Error uploading to Arweave", error);
-    }
-  };
-
-  // Function to convert file to Uint8Array
-  const fileToUint8Array = (file: File): Promise<Uint8Array> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result instanceof ArrayBuffer) {
-          resolve(new Uint8Array(reader.result));
-        } else {
-          reject(new Error("Failed to read file as ArrayBuffer"));
-        }
-      };
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
+    const arweave = Arweave.init({
+        host: 'arweave.net',
+        port: 443,
+        protocol: 'https',
     });
-  };
 
-  const sendTransactionDataToBackend = async (transactionId: string) => {
-    try {
-      const response = await fetch("http://localhost:3000/save-tx", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ transactionId }),
-      });
+    const connectToArConnect = async () => {
+        try {
+            if (window.arweaveWallet) {
+                const address = await window.arweaveWallet.getActiveAddress();
+                const balance = await arweave.wallets.getBalance(address);
 
-      const result = await response.json();
-      console.log("Backend Response: ", result);
-    } catch (error) {
-      console.error("Error sending transaction data to backend", error);
-    }
-  };
+                setWalletData({ address, balance: Number(balance) / 1e12 });
+                console.log(`Connected with wallet address: ${address}, Balance: ${ Number(balance) / 1e12}`);
+            } else {
+                alert('ArConnect not detected. Creating a new wallet...');
 
-  return (
-    <div className="home">
-      <ArweaveWalletKit
-        config={{
-          permissions: ["ACCESS_ADDRESS"],
-          ensurePermissions: true,
-          appInfo: { name: "MyDApp", logo: "logo.png" },
-        }}
-        theme={{
-          displayTheme: "light",
-          accent: { r: 0, g: 122, b: 255 },
-          radius: "minimal",
-        }}
-        onConnect={(wallet: Wallet) => setWallet(wallet)} // Type the wallet parameter
-      >
-        <Header />
-        <Body />
-        <Footer />
-        <ConnectButton
-          accent="rgb(255, 0, 0)"
-          profileModal={false}
-          showBalance={true}
-        />
-      </ArweaveWalletKit>
+                const key = await arweave.wallets.generate();
+                const address = await arweave.wallets.jwkToAddress(key);
+                const balance = await arweave.wallets.getBalance(address);
 
-      <div>
-        <input type="file" onChange={handleFileChange} />
-        <button onClick={uploadToArweave}>Upload to Arweave</button>
-      </div>
-    </div>
-  );
+                setWalletData({ address, balance: Number(balance) / 1e12 });
+
+                console.log(`Created new wallet with address: ${address}, Balance: ${ Number(balance) / 1e12}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setMessage('Error connecting to wallet or creating a new one.');
+        }
+    };
+
+    const uploadData = async () => {
+        if (!walletData) {
+            alert('Please connect your wallet first.');
+            return;
+        }
+
+        const dataToUpload = "Sample dataset to post";
+
+        try {
+            const response = await fetch('http://localhost:3001/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    walletAddress: walletData.address,
+                    data: dataToUpload,
+                }),
+            });
+            const result = await response.json();
+            setMessage(result.message || 'Data upload successful');
+        } catch (error) {
+            console.error('Error uploading data:', error);
+            setMessage('Error uploading data');
+        }
+    };
+
+    return (
+        <div>
+            <button 
+                onClick={connectToArConnect} 
+                style={{ backgroundColor: '#ff7e5f', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '5px', cursor: 'pointer', marginBottom: '10px' }}
+            >
+                Connect or Create Wallet
+            </button>
+            {walletData && (
+                <div>
+                    <p><strong>Wallet Address:</strong> {walletData.address}</p>
+                    <p><strong>Balance:</strong> {walletData.balance} AR</p>
+                </div>
+            )}
+            <button 
+                onClick={uploadData} 
+                style={{ backgroundColor: '#ff7e5f', color: 'white',   margin: '20px 8px', padding: '8px 16px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+            >
+                Upload Data to Arweave
+            </button>
+            {message && <p>{message}</p>}
+        </div>
+    );
 };
 
-export default ArweaveUpload;
+export default App;
