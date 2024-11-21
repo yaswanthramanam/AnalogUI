@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "arweave-wallet-kit": "^1.0.7",
+    "arweavekit": "^1.5.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"
@@ -30,5 +32,6 @@
   "description": "UI application",
   "main": "eslint.config.js",
   "author": "yaswanthramanam@gmail.com",
-  "license": "ISC"
+  "license": "ISC",
+  "proxy": "https://arweave.net"
 }

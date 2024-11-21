@@ -1,5 +1,6 @@
 import React from 'react';
 import './Body.css';
+import Arweave from '../Arweave/Arweave';
 
 const HeroSection: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ const HeroSection: React.FC = () => {
           Defining AI training in a collaborative data marketplace
         </p>
         <a className="cta-button" href= "/learnMore">Learn More</a>
+        <Arweave/>
       </div>
     </section>
   );
