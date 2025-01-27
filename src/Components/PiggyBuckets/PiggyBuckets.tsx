@@ -3,15 +3,13 @@ import Slider, { Settings } from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./PiggyBuckets.css";
-import EthereumImage from '../../assets/EthereumImage.jpeg';
-import GiveWell from '../../assets/GiveWellDonations.png';
-import GiveDirectly from '../../assets/Give Directly.webp';
-import UkraineWar from '../../assets/UkrianeWar.jpg';
-import AsterImage from '../../assets/AstarImage.jpg';
-import PolygonImage from '../../assets/PolygonImage.jpeg';
+import EthereumImage from '../../assets/EthereumImage.jpeg'
+import GiveWell from '../../assets/GiveWellDonations.png'
+import GiveDirectly from '../../assets/Give Directly.webp'
+import UkraineWar from '../../assets/UkrianeWar.jpg'
+import AsterImage from '../../assets/AstarImage.jpg'
+import PolygonImage from '../../assets/PolygonImage.jpeg'
 import { getWallets, Wallet } from '@talismn/connect-wallets';
-import { ethers } from "ethers";
-
 
 // Define types for the data
 type CarouselItem = {
@@ -22,68 +20,69 @@ type CarouselItem = {
 
 // Define types for the data
 type DonationItem = CarouselItem & {
-  wallets: Map<string, string>;
+  wallets: Map<string, string> ;
 };
+
 
 const CarouselComponent: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState<"Pools" | "Donations">("Pools");
+
   const [selectedWallet, setSelectedWallet] = useState<{
     address: string;
     blockchain: string;
   } | null>(null);
 
-  const process = async (item: DonationItem) => {
-    if (selectedSection === "Donations") {
-      const wallets: Wallet[] = getWallets();
-      const installedWallets = wallets.filter((wallet) => wallet.installed);
-      const talismanWallet: Wallet | undefined = installedWallets.find(
+  const process = async (item:any) => {
+
+    if(selectedSection=== "Donations"){
+      const wallets:Wallet[] = getWallets();
+    const selectedSource = 'talisman';
+
+    const installedWallets = wallets.filter((wallet) => wallet.installed);
+
+    const talismanWallet:Wallet| undefined= installedWallets.find(
         (wallet) => wallet.extensionName === 'talisman'
-      );
+    );
 
-      if (talismanWallet) {
+    let senderAddress:any;
+    let destinationAddress;
+    let amount = 10_000_000_000_000_000; 
+
+    if (talismanWallet) {
         await talismanWallet.enable('myCoolDapp');
-        const accounts = await talismanWallet.getAccounts();
-        const senderAddress = accounts[0]?.address; // Get the sender's address
-        const destinationAddress = item.wallets.get("ethereum"); // Get destination address
-        const amountInEth = "0.01"; // Amount you want to send (in ETH)
+        talismanWallet.subscribeAccounts((accounts:any) => {
+           senderAddress = accounts[0].address;
+           destinationAddress = item.wallets.get("ethereum");
+            console.log('Got accounts:', accounts);
+        });
 
-        // Create a provider using ethers.js
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        
-        // Create a signer
-        const signer = provider.getSigner(senderAddress);
-        
-        // Prepare the transaction
-        const tx = {
+        const tx:any = {
           to: destinationAddress,
-          value: ethers.utils.parseEther(amountInEth), // Convert amount to wei
-          gasLimit: ethers.utils.hexlify(21000), // Set gas limit
+          value: amount,
         };
 
-        try {
-          // Send the transaction
-          const transactionResponse = await signer.sendTransaction(tx);
-          console.log("Transaction sent:", transactionResponse.hash); // Log transaction hash
-          
-          // Wait for the transaction to be mined
-          await transactionResponse.wait();
-          console.log("Transaction confirmed!");
-        } catch (err) {
-          console.error("Transaction failed:", err); // Handle any errors
-        }
-      } else {
-        console.error('Talisman wallet not found');
-      }
+         // Step 4: Sign and send the transaction
+      const {hash} = await talismanWallet.signAndSend(senderAddress, tx);
+    
+      console.log("hash is:", hash);
+        console.log("Wallet selected:", item.wallets.get("ethereum"));
     } else {
-      // Handle other cases for "Pools" section if needed
+        console.error('Talisman wallet not found');
     }
-  };
+  }
+  else{
+
+  }
+    
+};
+
+
 
   const poolsData: CarouselItem[] = [
     {
       image: PolygonImage,
       title: "Polygon Pool",
-      description: "Join this Pool to buddy invest in MATIC with fellow developers",
+      description: "Join this Pool to buddy invest in MATIC  with fellow developers",
     },
     {
       image: EthereumImage,
@@ -110,21 +109,19 @@ const CarouselComponent: React.FC = () => {
     {
       image: GiveWell,
       title: "Give Well Donation Campaign",
-      description: "Your donation will be granted to the highest-impact programs across all our grantmaking in global health and well-being. Some programs may be much more cost-effective than our top charities, but we may also be much more uncertain about their impact. Source: www.givewell.org.",
+      description: "Your donation will be granted to the highest-impact programs across all our grantmaking in global health and well-being. Some programs may be much more cost-effective than our top charities, but we may also be much more uncertain about their impact. Source: www.givewell.org .",
       wallets: new Map<string, string>([
         ["ethereum", "0x5E1FdF4122861434bD285FC45120b9b592D3Ac7c"],
         ["bitcoin", "357a3So9CbsNfBBgFYACGvxxS6tMaDoa1P"],
-      ]),
-    },
+      ]),},
     {
       image: GiveDirectly,
       title: "Give Directly Donation Campaign",
-      description: "Lifespan Research Institute (“LRI”) will develop, promote, and ensure widespread access to regenerative medicine solutions targeting the disabilities. Source: https://sens.org.",
+      description: "Lifespan Research Institute (“LRI”) will develop, promote, and ensure widespread access to regenerative medicine solutions targeting the disabilities. source: https://sens.org .  ",
       wallets: new Map<string, string>([
         ["ethereum", "0x5E1FdF4122861434bD285FC45120b9b592D3Ac7c"],
         ["bitcoin", "34kwsubU6ExhXJdTfdNN1CHYyPvfHajFnX"],
-      ]),
-    }
+      ]),}
   ];
 
   // Slick carousel settings
@@ -164,6 +161,7 @@ const CarouselComponent: React.FC = () => {
             textAlign: "center",
             cursor: "pointer",
             transition: "background-color 0.3s, color 0.3s",
+            
           }}
         >
           Pools
@@ -187,30 +185,32 @@ const CarouselComponent: React.FC = () => {
       </div>
 
       {/* Carousel */}
-      <div style={{
-        border: "1px solid #ddd",
-        borderRadius: "10px",
-        textAlign: "center",
-        background: "rgba(248, 230, 204, 0.45)",
-        width: "100%",
-        flex: 1,
-        overflow: "hidden"
-      }}>
+      <div style={{border: "1px solid #ddd",
+                  borderRadius: "10px",
+                  textAlign: "center",
+                   background: "rgba(248, 230, 204, 0.45)",  width: "100%" , flex: 1, overflow: "hidden" }}>
         <Slider {...settings}>
           {dataToDisplay.map((item, index) => (
-            <div key={index} style={{ padding: "10px" }}>
-              <div style={{ paddingBottom: "25px", paddingTop: "25px", minHeight: "65vh" }}>
+            <div key={index} style={{ padding: "10px"}}>
+              <div style={{paddingBottom: "25px", paddingTop: "25px",    minHeight: "65vh"}}
+              >
                 <img
                   src={item.image}
                   alt={item.title}
                   style={{ width: "100%", height: "250px", objectFit: "contain", paddingTop: "20px" }}
                 />
-                <div style={{ padding: "15px" }}>
+                <div style={{ padding: "15px",  }}>
                   <h3 style={{ margin: "10px 0" }}>{item.title}</h3>
                   <p style={{ color: "#555", marginBottom: "20px" }}>{item.description}</p>
-                  <a onClick={() => process(item)} className="cta-button">{selectedSection === "Pools" ? "Participate" : "Donate Now"}</a>
+                  <a  onClick={()=> process(item)} className="cta-button" >{selectedSection === "Pools" ? "Participate" : "Donate Now"}</a>
                 </div>
               </div>
             </div>
           ))}
-        </
+        </Slider>
+      </div>
+    </div>
+  );
+};
+
+export default CarouselComponent;
