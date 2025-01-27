@@ -18,7 +18,7 @@ const Faq = () => {
   ];
 
   return (
-    <>
+    <div className='hero-section'>
         <Header/>
     <div className="faq-container">
       <h2 className="faq-heading">Frequently asked questions</h2>
@@ -43,7 +43,8 @@ const Faq = () => {
           </li>
         ))}
       </ul>
-    </div></>
+    </div>
+    </div>
 
   );
 };

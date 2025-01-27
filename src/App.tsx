@@ -1,8 +1,8 @@
 import Home from './Components/Home/Home'
 import './App.css'
-import HowItWorks from './Components/HowItWorks/HowItWorks'
+import InvestNow from './Components/InvestNow/InvestNow'
 import LearnMore from './Components/LearnMore/LearnMore';
-import Contributor from './Components/Contributor/Contributor';
+import Payments from './Components/Payments/Payments';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -11,9 +11,9 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/howItWorks" element={<HowItWorks/ >}/>
+        <Route path="/InvestNow" element={<InvestNow/ >}/>
         <Route path="/learnMore" element={<LearnMore/ >}/>
-        <Route path="/contributor" element={<Contributor/ >}/>
+        <Route path="/payments" element={<Payments/ >}/>
       </Routes>
     </Router>
   );

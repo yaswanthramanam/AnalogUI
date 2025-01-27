@@ -4,7 +4,8 @@
     justify-content: center;
     width: 50%;
     margin: auto;
-    padding: 200px 20px;
+    padding: 0px 20px;
+    padding-top: 100px;
   }
 
   ul{
@@ -19,6 +20,16 @@
     align-items: center;
     cursor: pointer;
     position: relative;
+  }
+
+  .hero-section{
+    height: 100vh;
+    display: flex;
+    background: linear-gradient(to bottom right, orange, skyblue);
+    align-items: center;
+    justify-content:space-around;
+    flex-direction: row;
+    padding: 0px;
   }
 
   .faq-question .arrow {

@@ -7,13 +7,12 @@ const HeroSection: React.FC = () => {
     <section className="hero">
       <div className="hero-content">
         <h1 className="hero-title">
-          Unlocking Smarter AI with <br /> Community Data
+        Invest & <br /> Grow Together
         </h1>
         <p className="hero-subtitle">
-          Defining AI training in a collaborative data marketplace
+          Invest in Crypto as a Community and Earn Exciting Rewards
         </p>
-        <a className="cta-button" href= "/learnMore">Learn More</a>
-        <Arweave/>
+        <a className="cta-button" href= "/InvestNow">Invest Now</a>
       </div>
     </section>
   );
